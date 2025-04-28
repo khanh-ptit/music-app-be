@@ -27,11 +27,19 @@ module.exports.getSongList = async (req, res) => {
 module.exports.getSongRanking = async (req, res) => {
   try {
     const songs = await Song.find({ deleted: false })
-      .limit(10)
-      .select("-lyrics -createdBy -updatedBy")
+      .limit(5)
+      .select("-lyrics -createdBy -updatedBy -description")
       .sort({
         listen: "desc",
-      });
+      })
+      .lean();
+    for (const item of songs) {
+      const singerId = item.singerId;
+      const singerInfo = await Singer.findOne({ _id: singerId });
+      if (singerInfo) {
+        item.singerName = singerInfo.fullName;
+      }
+    }
     // console.log(songs);
     res.json({ songs });
   } catch (error) {
