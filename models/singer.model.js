@@ -2,33 +2,26 @@ const mongoose = require("mongoose");
 const slug = require("mongoose-slug-updater");
 mongoose.plugin(slug);
 
-const songSchema = new mongoose.Schema({
-  title: String,
+const singerSchema = new mongoose.Schema({
+  fullName: String,
   avatar: String,
-  singerId: String,
-  description: String,
-  topicId: String,
-  like: {
-    type: Array,
-    default: [],
-  },
-  position: Number,
-  lyrics: String,
-  audio: String,
   status: String,
+  description: String,
+  realName: String,
+  birthYear: Number,
+  nationality: String,
+  hometown: String,
   slug: {
     type: String,
-    slug: "title",
+    slug: "fullName",
     unique: true,
-  },
-  listen: {
-    type: Number,
-    default: 0,
   },
   deleted: {
     type: Boolean,
     default: false,
   },
+  position: Number,
+  deletedAt: Date,
   createdBy: {
     accountId: String,
     createdAt: Date,
@@ -45,6 +38,6 @@ const songSchema = new mongoose.Schema({
   },
 });
 
-const Song = mongoose.model("Song", songSchema, "songs");
+const Singer = mongoose.model("Singer", singerSchema, "singers");
 
-module.exports = Song;
+module.exports = Singer;

@@ -5,4 +5,6 @@ const controller = require("../../controllers/client/song.controller");
 
 router.get("/", controller.getSongList);
 
+router.get("/ranking", controller.getSongRanking)
+
 module.exports = router;

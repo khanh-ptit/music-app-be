@@ -9,6 +9,6 @@ const routeClient = require("./routes/client/index.route");
 
 routeClient(app);
 
-app.listen(port, () => {
+app.listen(port, "0.0.0.0", () => {
   console.log(`Example app listening on port ${port}`);
 });
