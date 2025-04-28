@@ -1,6 +1,5 @@
 const Song = require("../../models/song.model");
 const Singer = require("../../models/singer.model");
-const slugify = require("slugify");
 
 module.exports.getSongList = async (req, res) => {
   try {
@@ -29,8 +28,7 @@ module.exports.getSongBySlug = async (req, res) => {
   try {
     const slug = req.params.slug;
 
-    const slugifiedName = slugify(slug, { lower: true, strict: true });
-    const regex = new RegExp(slugifiedName, "i");
+    const regex = new RegExp(slug, "i");
 
     let find = {
       slug: regex,
