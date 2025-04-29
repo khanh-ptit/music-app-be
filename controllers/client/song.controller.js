@@ -5,7 +5,6 @@ module.exports.getSongList = async (req, res) => {
   try {
     const songs = await Song.find({ deleted: false })
       .limit(10)
-      .select("-lyrics")
       .lean();
     for (const item of songs) {
       const singerId = item.singerId;
@@ -36,7 +35,7 @@ module.exports.getSongBySlug = async (req, res) => {
       deleted: false,
     };
 
-    const songs = await Song.find(find).select("-lyrics").lean();
+    const songs = await Song.find(find).lean();
     for (const item of songs) {
       const singerId = item.singerId;
       const singerInfo = await Singer.findOne({ _id: singerId });
@@ -58,7 +57,6 @@ module.exports.getSongRanking = async (req, res) => {
   try {
     const songs = await Song.find({ deleted: false })
       .limit(5)
-      .select("-lyrics -createdBy -updatedBy -description")
       .sort({
         listen: "desc",
       })
