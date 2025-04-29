@@ -80,3 +80,25 @@ module.exports.getSongRanking = async (req, res) => {
     });
   }
 };
+
+module.exports.getSongDetail = async (req, res) => {
+  try {
+    const slug = req.params.slug;
+    const song = await Song.findOne({
+      status: "active",
+      deleted: false,
+      slug: slug,
+    })
+      .select("-updatedBy")
+      .lean();
+    const singer = await Singer.findOne({ _id: song.singerId });
+    song.singerName = singer.fullName;
+    res.json({ song });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      code: 500,
+      message: "Đã xảy ra lỗi khi lấy chi tiết bài hát!",
+    });
+  }
+};

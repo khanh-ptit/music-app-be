@@ -9,4 +9,6 @@ router.get("/ranking", controller.getSongRanking);
 
 router.get("/search/:slug", controller.getSongBySlug);
 
+router.get("/detail/:slug", controller.getSongDetail);
+
 module.exports = router;
