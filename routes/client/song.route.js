@@ -11,4 +11,6 @@ router.get("/search/:slug", controller.getSongBySlug);
 
 router.get("/detail/:slug", controller.getSongDetail);
 
+router.get("/next/:id", controller.getNextSong);
+
 module.exports = router;
