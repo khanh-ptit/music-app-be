@@ -13,4 +13,6 @@ router.get("/detail/:slug", controller.getSongDetail);
 
 router.get("/next/:id", controller.getNextSong);
 
+router.get("/prev/:id", controller.getPreviousSong);
+
 module.exports = router;

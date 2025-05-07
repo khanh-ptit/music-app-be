@@ -116,11 +116,20 @@ module.exports.getNextSong = async (req, res) => {
       });
     }
 
-    // Tìm bài hát tiếp theo dựa trên position + 1
-    const nextSong = await Song.findOne({
-      position: currentSong.position + 1,
-      deleted: false,
-    }).lean();
+    // Tìm bài hát có vị trí lớn nhất (max position)
+    const maxPositionSong = await Song.findOne().sort({ position: -1 }).lean();
+
+    // Nếu bài hát hiện tại ở vị trí max, chuyển về bài hát có position = 1
+    let nextSong;
+    if (currentSong.position === maxPositionSong.position) {
+      nextSong = await Song.findOne({ position: 1, deleted: false }).lean();
+    } else {
+      // Nếu không phải bài hát max position, tìm bài hát tiếp theo
+      nextSong = await Song.findOne({
+        position: currentSong.position + 1,
+        deleted: false,
+      }).lean();
+    }
 
     if (!nextSong) {
       return res.status(404).json({
@@ -141,6 +150,61 @@ module.exports.getNextSong = async (req, res) => {
     res.status(500).json({
       code: 500,
       message: "Đã xảy ra lỗi khi lấy bài hát tiếp theo!",
+    });
+  }
+};
+
+module.exports.getPreviousSong = async (req, res) => {
+  try {
+    const currentSongId = req.params.id; // Lấy ID bài hát hiện tại từ params
+
+    // Lấy bài hát hiện tại
+    const currentSong = await Song.findById(currentSongId).lean();
+
+    if (!currentSong) {
+      return res.status(404).json({
+        code: 404,
+        message: "Bài hát không tồn tại",
+      });
+    }
+
+    // Tìm bài hát có vị trí lớn nhất (max position)
+    const maxPositionSong = await Song.findOne().sort({ position: -1 }).lean();
+
+    // Nếu bài hát hiện tại ở vị trí 1, chuyển về bài hát có vị trí max
+    let previousSong;
+    if (currentSong.position === 1) {
+      previousSong = await Song.findOne({
+        position: maxPositionSong.position,
+        deleted: false,
+      }).lean();
+    } else {
+      // Nếu không phải bài hát đầu tiên, tìm bài hát trước đó (position - 1)
+      previousSong = await Song.findOne({
+        position: currentSong.position - 1,
+        deleted: false,
+      }).lean();
+    }
+
+    if (!previousSong) {
+      return res.status(404).json({
+        code: 404,
+        message: "Không tìm thấy bài hát trước đó",
+      });
+    }
+
+    // Cập nhật thông tin của ca sĩ cho bài hát
+    const singerInfo = await Singer.findById(previousSong.singerId);
+    previousSong.singerName = singerInfo ? singerInfo.fullName : "Unknown";
+
+    res.json({
+      song: previousSong,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      code: 500,
+      message: "Đã xảy ra lỗi khi lấy bài hát trước đó!",
     });
   }
 };
