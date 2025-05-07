@@ -3,7 +3,10 @@ const Singer = require("../../models/singer.model");
 
 module.exports.getSongList = async (req, res) => {
   try {
-    const songs = await Song.find({ deleted: false }).limit(10).lean();
+    const songs = await Song.find({ deleted: false })
+      .limit(10)
+      .sort({ position: "asc" })
+      .lean();
     for (const item of songs) {
       const singerId = item.singerId;
       const singerInfo = await Singer.findOne({ _id: singerId });
@@ -101,40 +104,43 @@ module.exports.getSongDetail = async (req, res) => {
 
 module.exports.getNextSong = async (req, res) => {
   try {
-      const currentSongId = req.params.id;  // Lấy ID bài hát hiện tại từ params
+    const currentSongId = req.params.id; // Lấy ID bài hát hiện tại từ params
 
-      // Lấy bài hát hiện tại
-      const currentSong = await Song.findById(currentSongId).lean();
+    // Lấy bài hát hiện tại
+    const currentSong = await Song.findById(currentSongId).lean();
 
-      if (!currentSong) {
-          return res.status(404).json({
-              code: 404,
-              message: "Bài hát không tồn tại",
-          });
-      }
-
-      // Tìm bài hát tiếp theo dựa trên position + 1
-      const nextSong = await Song.findOne({ position: currentSong.position + 1, deleted: false }).lean();
-
-      if (!nextSong) {
-          return res.status(404).json({
-              code: 404,
-              message: "Không tìm thấy bài hát tiếp theo",
-          });
-      }
-
-      // Cập nhật thông tin của ca sĩ cho bài hát
-      const singerInfo = await Singer.findById(nextSong.singerId);
-      nextSong.singerName = singerInfo ? singerInfo.fullName : "Unknown";
-
-      res.json({
-          song: nextSong,
+    if (!currentSong) {
+      return res.status(404).json({
+        code: 404,
+        message: "Bài hát không tồn tại",
       });
+    }
+
+    // Tìm bài hát tiếp theo dựa trên position + 1
+    const nextSong = await Song.findOne({
+      position: currentSong.position + 1,
+      deleted: false,
+    }).lean();
+
+    if (!nextSong) {
+      return res.status(404).json({
+        code: 404,
+        message: "Không tìm thấy bài hát tiếp theo",
+      });
+    }
+
+    // Cập nhật thông tin của ca sĩ cho bài hát
+    const singerInfo = await Singer.findById(nextSong.singerId);
+    nextSong.singerName = singerInfo ? singerInfo.fullName : "Unknown";
+
+    res.json({
+      song: nextSong,
+    });
   } catch (error) {
-      console.log(error);
-      res.status(500).json({
-          code: 500,
-          message: "Đã xảy ra lỗi khi lấy bài hát tiếp theo!",
-      });
+    console.log(error);
+    res.status(500).json({
+      code: 500,
+      message: "Đã xảy ra lỗi khi lấy bài hát tiếp theo!",
+    });
   }
 };
