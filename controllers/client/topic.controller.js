@@ -1,5 +1,6 @@
 const Topic = require("../../models/topic.model");
 const Song = require("../../models/song.model");
+const Singer = require("../../models/singer.model")
 
 module.exports.getTopicList = async (req, res) => {
   try {
@@ -19,19 +20,29 @@ module.exports.getTopicList = async (req, res) => {
 module.exports.getSongByTopic = async (req, res) => {
   try {
     const topicId = req.params.topicId;
-    const topicInfo = await Topic.findOne({ _id: topicId }).select("-updatedBy");
+    const topicInfo = await Topic.findOne({ _id: topicId }).select(
+      "-updatedBy"
+    );
     const songs = await Song.find({
       topicId: topicId,
       status: "active",
       deleted: false,
     })
+      .lean()
       .sort({
         position: "asc",
       })
       .select("-lyrics");
+    for (const item of songs) {
+      const singerId = item.singerId;
+      const singerInfo = await Singer.findOne({ _id: singerId });
+      if (singerInfo) {
+        item.singerName = singerInfo.fullName;
+      }
+    }
     res.json({
       topicInfo,
-      songs
+      songs,
     });
   } catch {
     console.log(error);
