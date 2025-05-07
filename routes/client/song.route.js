@@ -15,4 +15,6 @@ router.get("/next/:id", controller.getNextSong);
 
 router.get("/prev/:id", controller.getPreviousSong);
 
+router.patch("/update-listen/:songId", controller.updateListen)
+
 module.exports = router;

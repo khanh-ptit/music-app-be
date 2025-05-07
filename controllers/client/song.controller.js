@@ -208,3 +208,43 @@ module.exports.getPreviousSong = async (req, res) => {
     });
   }
 };
+
+module.exports.updateListen = async (req, res) => {
+  try {
+    const songId = req.params.songId; 
+
+    // Tìm bài hát theo songId
+    const song = await Song.findOne({
+      _id: songId,
+      status: "active", // Kiểm tra trạng thái của bài hát
+      deleted: false,   // Kiểm tra bài hát chưa bị xóa
+    });
+
+    // Nếu không tìm thấy bài hát
+    if (!song) {
+      return res.status(404).json({
+        code: 404,
+        message: "Bài hát không tồn tại hoặc đã bị xóa!",
+      });
+    }
+
+    // Cập nhật lượt nghe, cộng thêm 1 vào trường 'listen'
+    song.listen += 1;
+
+    // Lưu lại bài hát với lượt nghe đã được cập nhật
+    await song.save();
+
+    // Trả về phản hồi thành công
+    res.status(200).json({
+      code: 200,
+      message: "Lượt nghe đã được cập nhật thành công!",
+      data: song,
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      code: 500,
+      message: "Đã xảy ra lỗi khi cập nhật lượt nghe!",
+    });
+  }
+};
