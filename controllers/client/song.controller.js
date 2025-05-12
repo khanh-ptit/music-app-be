@@ -1,5 +1,6 @@
 const Song = require("../../models/song.model");
 const Singer = require("../../models/singer.model");
+const User = require("../../models/user.model");
 
 module.exports.getSongList = async (req, res) => {
   try {
@@ -76,6 +77,65 @@ module.exports.getSongRanking = async (req, res) => {
     res.status(500).json({
       code: 500,
       message: "Đã xảy ra lỗi khi lấy danh sách bài hát!",
+    });
+  }
+};
+
+module.exports.likeSong = async (req, res) => {
+  try {
+    const songId = req.params.id;
+    const tokenUser = req.headers["authorization"]; // Lấy token từ header
+
+    if (!tokenUser) {
+      return res.status(401).json({
+        code: 401,
+        message: "No token provided",
+      });
+    }
+
+    // Tìm người dùng theo token
+    const user = await User.findOne({ tokenUser: tokenUser, deleted: false });
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "Người dùng không tồn tại!",
+      });
+    }
+
+    const userId = user._id.toString();
+
+    // Tìm bài hát theo songId
+    const song = await Song.findById(songId);
+    if (!song) {
+      return res.status(404).json({
+        code: 404,
+        message: "Không tồn tại bài hát!",
+      });
+    }
+
+    // Kiểm tra xem người dùng đã like bài hát chưa
+    const isLiked = song.like.includes(userId);
+
+    if (isLiked) {
+      // Nếu đã like, thì bỏ like (xóa userId khỏi mảng likes)
+      song.like = song.like.filter((id) => id !== userId);
+    } else {
+      // Nếu chưa like, thì thêm userId vào mảng likes
+      song.like.push(userId);
+    }
+
+    await song.save();
+
+    return res.status(200).json({
+      code: 200,
+      message: isLiked ? "Đã bỏ thích bài hát!" : "Đã thích bài hát",
+      likesCount: song.like.length,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      message: "An error occurred while liking the song",
     });
   }
 };
@@ -211,13 +271,13 @@ module.exports.getPreviousSong = async (req, res) => {
 
 module.exports.updateListen = async (req, res) => {
   try {
-    const songId = req.params.songId; 
+    const songId = req.params.songId;
 
     // Tìm bài hát theo songId
     const song = await Song.findOne({
       _id: songId,
       status: "active", // Kiểm tra trạng thái của bài hát
-      deleted: false,   // Kiểm tra bài hát chưa bị xóa
+      deleted: false, // Kiểm tra bài hát chưa bị xóa
     });
 
     // Nếu không tìm thấy bài hát
