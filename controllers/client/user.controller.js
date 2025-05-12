@@ -62,6 +62,7 @@ module.exports.getUserProfile = async (req, res) => {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      avatar: user.avatar,
     });
   } catch (error) {
     console.error(error);
