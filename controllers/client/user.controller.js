@@ -37,7 +37,7 @@ module.exports.login = async (req, res) => {
 
 module.exports.getUserProfile = async (req, res) => {
   try {
-    const tokenUser = req.headers["authorization"].split(" ")[1];
+    const tokenUser = req.headers["authorization"];
 
     if (!tokenUser) {
       return res.status(401).json({
