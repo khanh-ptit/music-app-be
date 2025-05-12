@@ -5,6 +5,8 @@ const controller = require("../../controllers/client/user.controller");
 
 router.post("/login", controller.login);
 
+router.post("/register", controller.register);
+
 router.get("/profile", controller.getUserProfile);
 
 router.get("/favorite-songs", controller.getFavoriteSong);

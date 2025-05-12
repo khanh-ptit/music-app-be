@@ -38,6 +38,46 @@ module.exports.login = async (req, res) => {
   }
 };
 
+module.exports.register = async (req, res) => {
+  try {
+    const { fullName, email, password, address, phone } = req.body;
+
+    // Kiểm tra email đã tồn tại chưa
+    const existingUser = await User.findOne({ email: email, deleted: false });
+    if (existingUser) {
+      return res.status(400).json({
+        code: 400,
+        message: "Email đã tồn tại!",
+      });
+    }
+
+    // Mã hóa password trước khi lưu vào cơ sở dữ liệu
+    const hashedPassword = md5(password);
+
+    // Tạo mới người dùng
+    const newUser = new User({
+      fullName,
+      email,
+      password: hashedPassword,
+      address,
+      phone,
+    });
+
+    await newUser.save();
+
+    return res.status(201).json({
+      code: 201,
+      message: "Đăng ký thành công!",
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      message: "Đã xảy ra lỗi khi đăng ký!",
+    });
+  }
+};
+
 module.exports.getUserProfile = async (req, res) => {
   try {
     const tokenUser = req.headers["authorization"];
