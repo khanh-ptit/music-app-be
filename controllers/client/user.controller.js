@@ -3,34 +3,71 @@ const md5 = require("md5");
 
 module.exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body; 
+    const { email, password } = req.body;
 
     const existUser = await User.findOne({ email: email, deleted: false });
 
     if (!existUser) {
       return res.status(404).json({
         code: 404,
-        message: "Email không hợp lệ!"  
+        message: "Email không hợp lệ!",
       });
     }
 
     if (md5(password) !== existUser.password) {
       return res.status(401).json({
         code: 401,
-        message: "Mật khẩu không chính xác!" 
+        message: "Mật khẩu không chính xác!",
       });
     }
 
     return res.status(200).json({
       code: 200,
       message: "Đăng nhập thành công",
-      token: existUser.tokenUser
+      token: existUser.tokenUser,
     });
   } catch (error) {
     console.error(error);
     return res.status(500).json({
       code: 500,
-      message: "Đã xảy ra lỗi khi đăng nhập!"
+      message: "Đã xảy ra lỗi khi đăng nhập!",
+    });
+  }
+};
+
+module.exports.getUserProfile = async (req, res) => {
+  try {
+    const tokenUser = req.headers["authorization"].split(" ")[1];
+
+    if (!tokenUser) {
+      return res.status(401).json({
+        code: 401,
+        message: "No token provided",
+      });
+    }
+
+    console.log(tokenUser);
+
+    const user = await User.findOne({ tokenUser: tokenUser, deleted: false });
+
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "User not found",
+      });
+    }
+
+    return res.status(200).json({
+      code: 200,
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+    });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      message: "An error occurred while fetching user profile",
     });
   }
 };
