@@ -59,7 +59,7 @@ module.exports.getUserProfile = async (req, res) => {
 
     return res.status(200).json({
       code: 200,
-      name: user.name,
+      name: user.fullName,
       email: user.email,
       phone: user.phone,
       avatar: user.avatar,
