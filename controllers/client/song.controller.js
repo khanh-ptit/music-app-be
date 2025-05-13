@@ -6,7 +6,6 @@ const FavoriteSong = require("../../models/favorite-song.model");
 module.exports.getSongList = async (req, res) => {
   try {
     const songs = await Song.find({ deleted: false })
-      .limit(10)
       .sort({ position: "asc" })
       .lean();
     for (const item of songs) {
