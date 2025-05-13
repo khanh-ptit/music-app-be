@@ -90,6 +90,51 @@ module.exports.otpPassword = async (req, res) => {
   });
 };
 
+module.exports.resetPassword = async (req, res) => {
+  const tokenUser = req.headers["authorization"];
+
+  if (!tokenUser) {
+    return res.status(400).json({
+      code: 400,
+      message: "Vui lòng xác thực",
+    });
+  }
+  const password = req.body.password;
+  const confirmPassword = req.body.confirmPassword;
+
+  if (password != confirmPassword) {
+    return res.status(400).json({
+      code: 400,
+      message: "Mật khẩu không trùng khớp",
+    });
+  }
+
+  const user = await User.findOne({
+    tokenUser: tokenUser,
+  });
+  // console.log(user.password, md5(password))
+  if (user.password == md5(password)) {
+    return res.status(400).json({
+      code: 400,
+      message: "Mật khẩu mới không được trùng với mật khẩu cũ!",
+    });
+  }
+
+  await User.updateOne(
+    {
+      tokenUser: tokenUser,
+    },
+    {
+      password: md5(password),
+    }
+  );
+
+  res.status(200).json({
+    code: 200,
+    message: "Cập nhật mật khẩu thành công!",
+  });
+};
+
 module.exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
