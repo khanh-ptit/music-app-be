@@ -130,7 +130,7 @@ module.exports.isLike = async (req, res) => {
 module.exports.likeSong = async (req, res) => {
   try {
     const songId = req.params.id;
-    const tokenUser = req.headers["authorization"].split(" ")[1]; // Lấy token từ header
+    const tokenUser = req.headers["authorization"]; // Lấy token từ header
 
     if (!tokenUser) {
       return res.status(401).json({
