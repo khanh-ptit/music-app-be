@@ -9,6 +9,8 @@ router.get("/ranking", controller.getSongRanking);
 
 router.patch("/like/:id", controller.likeSong);
 
+router.get("/:id/is-like", controller.isLike)
+
 router.get("/search/:slug", controller.getSongBySlug);
 
 router.get("/detail/:slug", controller.getSongDetail);

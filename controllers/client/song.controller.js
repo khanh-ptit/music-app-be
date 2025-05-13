@@ -81,10 +81,56 @@ module.exports.getSongRanking = async (req, res) => {
   }
 };
 
+module.exports.isLike = async (req, res) => {
+  try {
+    const songId = req.params.id;
+    const token = req.headers["authorization"];
+    if (!token) {
+      return res.status(401).json({
+        code: 401,
+        message: "No token provided",
+      });
+    }
+
+    // Find user by token
+    const user = await User.findOne({ tokenUser: token, deleted: false });
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "User not found",
+      });
+    }
+
+    // Find the song by ID
+    const song = await Song.findById(songId);
+    if (!song) {
+      return res.status(404).json({
+        code: 404,
+        message: "Song not found",
+      });
+    }
+
+    // Check if the song is liked by the user
+    const isLiked = song.like.includes(user._id); // Check if user ID is in the like array
+
+    res.status(200).json({
+      code: 200,
+      message: isLiked ? "Bài hát đã được thích" : "Bài hát chưa được thích",
+      isLiked: isLiked,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      code: 500,
+      message: "An error occurred while checking like status",
+    });
+  }
+};
+
 module.exports.likeSong = async (req, res) => {
   try {
     const songId = req.params.id;
-    const tokenUser = req.headers["authorization"]; // Lấy token từ header
+    const tokenUser = req.headers["authorization"].split(" ")[1]; // Lấy token từ header
 
     if (!tokenUser) {
       return res.status(401).json({
