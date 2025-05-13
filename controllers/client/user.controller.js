@@ -2,7 +2,69 @@ const User = require("../../models/user.model");
 const Song = require("../../models/song.model");
 const FavoriteSong = require("../../models/favorite-song.model");
 const Singer = require("../../models/singer.model");
+const ForgotPassword = require("../../models/forgot-password.model");
 const md5 = require("md5");
+const sendMailHelper = require("../../helpers/sendMail");
+const generateHelper = require("../../helpers/generate");
+
+// [POST] /api/v1/user/password/forgot
+module.exports.forgotPassword = async (req, res) => {
+  const email = req.body.email;
+  const existEmail = await User.findOne({
+    email: email,
+    deleted: false,
+  });
+  if (!existEmail) {
+    return res.status(404).json({
+      code: 400,
+      message: "Email không tồn tại không hệ thống!",
+    });
+  }
+
+  const otp = generateHelper.generateRandomNumber(6);
+  const objectForgotPassword = {
+    email: email,
+    otp: otp,
+    expireAt: new Date(Date.now() + 180 * 1000),
+  };
+  const forgotPassword = new ForgotPassword(objectForgotPassword);
+  console.log(objectForgotPassword);
+  await forgotPassword.save();
+
+  // Gửi OTP
+  const subject = `Mã xác thực OTP đặt lại mật khẩu`;
+  const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: auto; border: 1px solid #ddd; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+            <div style="background-color: #6200EE; color: white; padding: 20px; text-align: center; font-size: 22px; font-weight: bold;">
+                Xác Thực OTP
+            </div>
+            <div style="padding: 20px; line-height: 1.6;">
+                <p style="font-size: 16px; color: #333;">Xin chào,</p>
+                <p style="font-size: 16px; color: #333;">Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản của mình. Dưới đây là mã OTP để xác thực yêu cầu:</p>
+                <div style="text-align: center; margin: 30px 0;">
+                    <span style="font-size: 28px; font-weight: bold; color: #6200EE; background-color: #FFF3E0; padding: 15px 25px; border: 2px dashed #6200EE; border-radius: 8px;">
+                        ${otp}
+                    </span>
+                </div>
+                <p style="font-size: 14px; color: #555;">
+                    <b>Lưu ý:</b> Mã OTP này chỉ có hiệu lực trong vòng <b>3 phút</b>. Không chia sẻ mã này với bất kỳ ai để đảm bảo an toàn tài khoản.
+                </p>
+                <p style="font-size: 14px; color: #555;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này hoặc liên hệ với chúng tôi để được hỗ trợ.</p>
+                <p style="font-size: 14px; color: #555;">Trân trọng,<br><span style="color: #6200EE; font-weight: bold;">MusicApp - Free To Everyone</span></p>
+            </div>
+            <div style="background-color: #FFE0B2; text-align: center; padding: 15px; font-size: 12px; color: #888;">
+                Email này được gửi từ hệ thống của MusicApp. Nếu không phải bạn thực hiện yêu cầu, vui lòng liên hệ ngay với chúng tôi.
+            </div>
+        </div>
+    `;
+
+  sendMailHelper.sendMail(email, subject, html);
+
+  res.status(200).json({
+    code: 200,
+    message: "OTP đã được gửi về email của bạn",
+  });
+};
 
 module.exports.login = async (req, res) => {
   try {
@@ -88,8 +150,6 @@ module.exports.getUserProfile = async (req, res) => {
         message: "No token provided",
       });
     }
-
-    console.log(tokenUser);
 
     const user = await User.findOne({ tokenUser: tokenUser, deleted: false });
 

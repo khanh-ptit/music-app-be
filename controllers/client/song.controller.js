@@ -217,7 +217,7 @@ module.exports.favoriteSong = async (req, res) => {
 
     if (existFavoriteSong) {
       // Nếu bài hát đã có trong danh sách yêu thích, tiến hành bỏ yêu thích
-      await FavoriteSong.deleteOne({ _id: existFavoriteSong._id });
+      await FavoriteSong.deleteOne({ _id: existFavoriteSong._id.toString() });
       return res.status(200).json({
         code: 200,
         message: "Đã bỏ yêu thích bài hát!",

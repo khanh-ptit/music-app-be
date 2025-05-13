@@ -11,4 +11,6 @@ router.get("/profile", controller.getUserProfile);
 
 router.get("/favorite-songs", controller.getFavoriteSong);
 
+router.post("/forgot-password", controller.forgotPassword)
+
 module.exports = router;
