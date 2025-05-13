@@ -1,6 +1,7 @@
 const Song = require("../../models/song.model");
 const Singer = require("../../models/singer.model");
 const User = require("../../models/user.model");
+const FavoriteSong = require("../../models/favorite-song.model");
 
 module.exports.getSongList = async (req, res) => {
   try {
@@ -182,6 +183,109 @@ module.exports.likeSong = async (req, res) => {
     return res.status(500).json({
       code: 500,
       message: "An error occurred while liking the song",
+    });
+  }
+};
+module.exports.favoriteSong = async (req, res) => {
+  try {
+    const songId = req.params.id; // Lấy songId từ tham số URL
+    const tokenUser = req.headers["authorization"]; // Lấy token từ header
+
+    if (!tokenUser) {
+      return res.status(401).json({
+        code: 401,
+        message: "No token provided",
+      });
+    }
+
+    // Tìm người dùng theo token
+    const user = await User.findOne({ tokenUser: tokenUser, deleted: false });
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "Người dùng không tồn tại!",
+      });
+    }
+
+    const userId = user._id.toString();
+
+    // Kiểm tra xem bài hát đã tồn tại trong danh sách yêu thích của người dùng chưa
+    const existFavoriteSong = await FavoriteSong.findOne({
+      userId: userId,
+      songId: songId,
+    });
+
+    if (existFavoriteSong) {
+      // Nếu bài hát đã có trong danh sách yêu thích, tiến hành bỏ yêu thích
+      await FavoriteSong.deleteOne({ _id: existFavoriteSong._id });
+      return res.status(200).json({
+        code: 200,
+        message: "Đã bỏ yêu thích bài hát!",
+      });
+    } else {
+      // Nếu bài hát chưa có trong danh sách yêu thích, tiến hành thêm vào
+      const newFavoriteSong = new FavoriteSong({
+        userId: userId,
+        songId: songId,
+      });
+      await newFavoriteSong.save();
+
+      return res.status(200).json({
+        code: 200,
+        message: "Đã yêu thích bài hát!",
+      });
+    }
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      code: 500,
+      message: "Đã xảy ra lỗi khi thích bài hát",
+    });
+  }
+};
+
+module.exports.isFavorite = async (req, res) => {
+  try {
+    const songId = req.params.id; // Lấy songId từ URL params
+    const token = req.headers["authorization"]; // Lấy token từ header (Bearer token)
+
+    if (!token) {
+      return res.status(401).json({
+        code: 401,
+        message: "No token provided",
+      });
+    }
+
+    // Tìm người dùng theo token
+    const user = await User.findOne({ tokenUser: token, deleted: false });
+    if (!user) {
+      return res.status(404).json({
+        code: 404,
+        message: "User not found",
+      });
+    }
+
+    // Kiểm tra xem bài hát có nằm trong danh sách yêu thích của người dùng không
+    const favoriteSong = await FavoriteSong.findOne({
+      userId: user._id.toString(),
+      songId: songId,
+    });
+
+    // Nếu có trong danh sách yêu thích thì isFavorite = true, nếu không thì false
+    const isFavorite = favoriteSong ? true : false;
+
+    return res.status(200).json({
+      code: 200,
+      message: isFavorite
+        ? "Bài hát đã được yêu thích"
+        : "Bài hát chưa được yêu thích",
+      isFavorite: isFavorite, // Trả về trạng thái yêu thích của bài hát
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      code: 500,
+      message: "An error occurred while checking favorite status",
     });
   }
 };
