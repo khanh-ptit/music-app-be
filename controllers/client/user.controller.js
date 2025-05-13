@@ -94,8 +94,8 @@ module.exports.resetPassword = async (req, res) => {
   const tokenUser = req.headers["authorization"];
 
   if (!tokenUser) {
-    return res.status(400).json({
-      code: 400,
+    return res.status(401).json({
+      code: 401,
       message: "Vui lòng xác thực",
     });
   }
