@@ -11,6 +11,8 @@ router.get("/profile", controller.getUserProfile);
 
 router.get("/favorite-songs", controller.getFavoriteSong);
 
-router.post("/forgot-password", controller.forgotPassword)
+router.post("/forgot-password", controller.forgotPassword);
+
+router.post("/otp-password", controller.otpPassword);
 
 module.exports = router;

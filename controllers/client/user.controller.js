@@ -7,7 +7,6 @@ const md5 = require("md5");
 const sendMailHelper = require("../../helpers/sendMail");
 const generateHelper = require("../../helpers/generate");
 
-// [POST] /api/v1/user/password/forgot
 module.exports.forgotPassword = async (req, res) => {
   const email = req.body.email;
   const existEmail = await User.findOne({
@@ -63,6 +62,31 @@ module.exports.forgotPassword = async (req, res) => {
   res.status(200).json({
     code: 200,
     message: "OTP đã được gửi về email của bạn",
+  });
+};
+
+module.exports.otpPassword = async (req, res) => {
+  const otp = req.body.otp;
+  const record = await ForgotPassword.findOne({
+    email: req.body.email,
+    otp: otp,
+  });
+
+  if (!record) {
+    return res.status(400).json({
+      code: 400,
+      message: "OTP không hợp lệ",
+    });
+  }
+
+  const user = await User.findOne({
+    email: req.body.email,
+  });
+
+  res.status(200).json({
+    code: 200,
+    message: "Xác nhận OTP thành công!",
+    token: user.tokenUser,
   });
 };
 
