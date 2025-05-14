@@ -41,7 +41,7 @@ module.exports.forgotPassword = async (req, res) => {
                 <p style="font-size: 16px; color: #333;">Xin chào,</p>
                 <p style="font-size: 16px; color: #333;">Bạn vừa yêu cầu đặt lại mật khẩu cho tài khoản của mình. Dưới đây là mã OTP để xác thực yêu cầu:</p>
                 <div style="text-align: center; margin: 30px 0;">
-                    <span style="font-size: 28px; font-weight: bold; color: #6200EE; background-color: #FFF3E0; padding: 15px 25px; border: 2px dashed #6200EE; border-radius: 8px;">
+                    <span style="font-size: 28px; font-weight: bold; color: #6200EE; background-color: #ddd; padding: 15px 25px; border: 2px dashed #6200EE; border-radius: 8px;">
                         ${otp}
                     </span>
                 </div>
@@ -49,9 +49,9 @@ module.exports.forgotPassword = async (req, res) => {
                     <b>Lưu ý:</b> Mã OTP này chỉ có hiệu lực trong vòng <b>3 phút</b>. Không chia sẻ mã này với bất kỳ ai để đảm bảo an toàn tài khoản.
                 </p>
                 <p style="font-size: 14px; color: #555;">Nếu bạn không thực hiện yêu cầu này, vui lòng bỏ qua email này hoặc liên hệ với chúng tôi để được hỗ trợ.</p>
-                <p style="font-size: 14px; color: #555;">Trân trọng,<br><span style="color: #6200EE; font-weight: bold;">MusicApp - Free To Everyone</span></p>
+                <p style="font-size: 14px; color: #555;">Trân trọng,<br><span style="color: #6200EE; font-weight: bold;">Zing M3P</span></p>
             </div>
-            <div style="background-color: #FFE0B2; text-align: center; padding: 15px; font-size: 12px; color: #888;">
+            <div style="background-color: #6200EE; text-align: center; padding: 15px; font-size: 12px; color: #ddd;">
                 Email này được gửi từ hệ thống của MusicApp. Nếu không phải bạn thực hiện yêu cầu, vui lòng liên hệ ngay với chúng tôi.
             </div>
         </div>

@@ -20,7 +20,7 @@ module.exports.sendMail = (email, subject, html) => {
 
   // Define the mail options
   const mailOptions = {
-    from: `MusicApp Free To EveryOne <khanhhs11vtt@gmail.com>`,
+    from: `Zing M3P <khanhhs11vtt@gmail.com>`,
     to: email,
     subject: subject,
     html: html,
@@ -35,4 +35,3 @@ module.exports.sendMail = (email, subject, html) => {
     }
   });
 };
-
